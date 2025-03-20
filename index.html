@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="./static/css/index.css">
   <link rel="icon" href="./static/images/favicon.png">
 
+  <script src="https://cdn.jsdelivr.net/npm/@iframe-resizer/parent@5.3.3"></script>
   <script defer src="./static/js/fontawesome.all.min.js"></script>
 </head>
 <body>
@@ -106,6 +107,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
+<section class="section" id="Playground">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="content">
+          <h2 class="title">Playground</h2>
+          <iframe src="https://jhayase-superbpe-tokenizer-playground.static.hf.space"
+                  frameborder="0"
+            width="100%"
+            id="#playgroundframe"></iframe>
+    <script type="module">
+      import { initialize } from "https://cdn.jsdelivr.net/npm/@open-iframe-resizer/core@latest/dist/index.js";
+
+      initialize();
+    </script>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="BibTeX">
     <div class="container is-max-desktop">
       <div class="columns is-centered">
@@ -134,6 +156,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="content">
           <p>
             This page was built using the <a href="https://advtok.github.io/">Adversarial Tokenization project page</a>.
+            The playground is based on <a href="https://huggingface.co/spaces/Xenova/the-tokenizer-playground/">Xenova/the-tokenizer-playground</a>.
             This website is licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.
             You are free to borrow the <a href="https://github.com/superbpe/superbpe.github.io">source code</a> of this website, we just ask that you remove the analystics code in the header and link back to this page in the footer.
           </p>
