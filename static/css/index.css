@@ -186,6 +186,10 @@ body {
   margin: 2rem 0;
 }
 
+#resulttab th, #resulttab td{
+  padding: 0.25em 0.75em;
+}
+
 .bg-blue-300 {
   background-color: rgb(147, 197, 253);
 }
