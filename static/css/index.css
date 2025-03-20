@@ -24,7 +24,7 @@ body {
 }
 
 .teaser {
-  font-family: 'Google Sans', sans-serif;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 
@@ -48,11 +48,11 @@ body {
 }
 
 .publication-title {
-    font-family: 'Google Sans', sans-serif;
+    font-family: 'Noto Sans', sans-serif;
 }
 
 .publication-authors {
-    font-family: 'Google Sans', sans-serif;
+    font-family: 'Noto Sans', sans-serif;
 }
 
 .publication-venue {
@@ -163,4 +163,21 @@ body {
 .author-block sup {
   font-variant-emoji: text;
   font-family: "Noto Sans"
+}
+
+#resulttab th:nth-child(n + 3) {
+  text-align: right !important;
+}
+
+#resulttab td:nth-child(n + 3) {
+  font-family: monospace;
+  text-align: right
+}
+
+#resulttab tr.hruled, #resulttab tfoot td, #resulttab tfoot th {
+  border-top: 2px solid #888 !important;
+}
+
+#resulttab thead th {
+  border-bottom: 2px solid #888 !important;
 }
