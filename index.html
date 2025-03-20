@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="./static/css/index.css">
   <link rel="icon" href="./static/images/favicon.png">
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@iframe-resizer/parent@5.3.3"></script>
   <script defer src="./static/js/fontawesome.all.min.js"></script>
 </head>
@@ -115,12 +116,22 @@
           <iframe src="https://jhayase-superbpe-tokenizer-playground.static.hf.space"
                   frameborder="0"
             width="100%"
-            id="#playgroundframe"></iframe>
-    <script type="module">
-      import { initialize } from "https://cdn.jsdelivr.net/npm/@open-iframe-resizer/core@latest/dist/index.js";
+            id="playgroundframe"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-      initialize();
-    </script>
+<section class="section" id="plot">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="content">
+          <h2 class="title">Encoding Efficiency</h2>
+          <iframe id="plotframe" src="static/images/test.html"
+                  frameborder="0"
+                  width="100%" scrolling="no"></iframe>
         </div>
       </div>
     </div>
@@ -408,6 +419,12 @@
     </div>
   </div>
 </footer>
+
+<script type="module">
+  import { initialize } from "https://cdn.jsdelivr.net/npm/@open-iframe-resizer/core@latest/dist/index.js";
+  initialize({}, "#playgroundframe");
+  initialize({targetElementSelector: "svg.mpld3-figure"}, "#plotframe");
+</script>
 
 </body>
 </html>
