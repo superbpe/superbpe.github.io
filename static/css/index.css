@@ -181,3 +181,7 @@ body {
 #resulttab thead th {
   border-bottom: 2px solid #888 !important;
 }
+
+#resulttab {
+  margin: 2rem 0;
+}

@@ -112,7 +112,6 @@
     <div class="columns is-centered">
       <div class="column is-four-fifths">
         <div class="content">
-          <h2 class="title">Playground</h2>
           <iframe src="https://jhayase-superbpe-tokenizer-playground.static.hf.space"
                   frameborder="0"
             width="100%"
@@ -128,7 +127,6 @@
     <div class="columns is-centered has-text-justified">
       <div class="column is-four-fifths">
         <div class="content">
-          <h2 class="title">Introduction</h2>
           <p>
             Tokenizers are the interface through which language models interact with the world. Beginning from a blank slate, they learn the shape and form of language as sequences of tokens. Each token is a segment of text that belongs in the language model’s “vocabulary,” and the language model learns to predict the next-token given the current context.
           </p>
@@ -138,39 +136,16 @@
           <p>
             But for modern language models, does it really make sense to limit tokens to parts of words? Whitespace is not a consistent delimiter of meaning — multi-word expressions (<em>“by the way”</em>) function semantically as single units, and different languages vary in the number of words needed to express a concept (<em>“spacesuit helmet”</em> is <em>“Raumanzughelm”</em> in German). At the extreme, <strong>languages such as Chinese do not use whitespace at all</strong>, so that tokens in these languages span multiple words and even <a href="https://x.com/suchenzang/status/1790171161512587424">entire sentences</a>, yet this has seemingly not hindered LMs from learning these languages.
           </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="plot">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-justified">
-      <div class="column is-four-fifths">
-        <div class="content">
-          <h2 class="title">Encoding Efficiency</h2>
           <p>
             To explore the potential of tokenization beyond subwords, we introduce SuperBPE, an algorithm that produces a tokenizer including both subword and “superword” tokens. SuperBPE dramatically improves encoding efficiency over BPE, meaning that it consistently segments the same piece of text into fewer tokens. This is because while BPE tokenizers quickly exhaust the set of “useful” words to add to the vocabulary, SuperBPE can continue to discover common word sequences to treat as single tokens. For instance, at a fixed vocabulary size of 200k, a SuperBPE tokenizer uses ⅓ fewer tokens than BPE to encode the same amount of text!
           </p>
           <iframe id="plotframe" src="static/images/test.html"
                   frameborder="0"
                   width="100%" scrolling="no"></iframe>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="results">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-justified">
-      <div class="column is-four-fifths">
-        <div class="content">
-          <h2 class="title">Results</h2>
           <p>
             What happens when we train models with superword tokenizers? In our experiments, we pretrain 8B models from scratch, fixing everything about the model architecture and training setup and varying only the algorithm for learning the vocabulary. We find that <strong>models trained with SuperBPE tokenizers are consistently better</strong> — our best model achieves a <strong>+4.0% absolute improvement on average over 30 downstream tasks</strong> over the BPE baseline, winning on 25/30 of the individual tasks (including +8.2% on MMLU), <strong>while also being 27% more efficient at inference time.</strong>
           </p>
+          <p>
           <table class="table is-hoverable" id="resulttab">
             <thead>
               <tr>
@@ -403,6 +378,7 @@
               </tr>
             </tfoot>
           </table>
+          </p>
           <p>
             Overall, SuperBPE provides a remarkable boost to both encoding efficiency and downstream performance to yield better language models. It replaces BPE tokenizers without requiring any other modifications to the architecture or training framework, making it a compelling alternative that seamlessly integrates with modern language model ecosystems.
           </p>
