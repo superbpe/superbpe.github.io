@@ -170,7 +170,7 @@ body {
 }
 
 #resulttab td:nth-child(n + 3) {
-  font-family: monospace;
+  font-family: "Noto Sans Mono" monospace;
   text-align: right
 }
 
@@ -184,4 +184,33 @@ body {
 
 #resulttab {
   margin: 2rem 0;
+}
+
+.bg-blue-300 {
+  background-color: rgb(147, 197, 253);
+}
+.bg-green-300 {
+  background-color: rgb(134, 239, 172);
+}
+.bg-purple-300 {
+  background-color: rgb(216, 180, 254);
+}
+.bg-red-300 {
+  background-color: rgb(252, 165, 165);
+}
+.bg-yellow-300 {
+  background-color: rgb(253, 224, 71);
+}
+
+span.segdemo {
+  font-family: "Noto Sans Mono", monospace;
+}
+
+p strong {
+  font-weight: 600;
+}
+
+#plotframe {
+  margin-bottom: 2rem;
+  margin-top: -2rem;
 }
