@@ -215,6 +215,12 @@ p strong {
 }
 
 #plotframe {
-  margin-bottom: 2rem;
-  margin-top: -2rem;
+  margin-bottom: 1.5rem;
+  margin-top: -1.5rem;
+}
+.is-horizontal-center {
+  justify-content: center;
+}
+figure {
+  margin: 1rem 0;
 }

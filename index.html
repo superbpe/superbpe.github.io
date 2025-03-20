@@ -139,9 +139,13 @@
           <p>
             To explore the potential of tokenization beyond subwords, we introduce <strong>SuperBPE</strong>, an algorithm that produces a tokenizer including both subword and “superword” tokens. SuperBPE dramatically improves encoding efficiency over BPE, meaning that it consistently segments the same piece of text into fewer tokens. This is because while BPE tokenizers quickly exhaust the set of “useful” words to add to the vocabulary, SuperBPE can continue to discover common word sequences to treat as single tokens. For instance, at a fixed vocabulary size of 200k, a SuperBPE tokenizer uses ⅓ fewer tokens than BPE to encode the same amount of text!
           </p>
-          <iframe id="plotframe" src="static/images/test.html"
-                  frameborder="0"
-                  width="100%" scrolling="no"></iframe>
+          <div class="is-flex is-horizontal-center">
+            <figure class='image'>
+                <img
+                  src="static/images/fig1.svg"
+                  alt="Plot with vocabulary size on the x-axis and bytes per token on the y-axis. SuperBPE outperforms both variants of BPE." />
+              </figure>
+            </div>
           <p>
             What happens when we train models with superword tokenizers? In our experiments, we pretrain 8B models from scratch, fixing everything about the model architecture and training setup and varying only the algorithm for learning the vocabulary. We find that <strong>models trained with SuperBPE tokenizers are consistently better</strong> — our best model achieves a <strong>+4.0% absolute improvement on average over 30 downstream tasks</strong> over the BPE baseline, winning on 25/30 of the individual tasks (including +8.2% on MMLU), <strong>while also being 27% more efficient at inference time.</strong>
           </p>
