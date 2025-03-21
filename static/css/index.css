@@ -226,3 +226,6 @@ p strong {
 figure {
   margin: 1rem 0;
 }
+figure img {
+  max-width: 500px;
+}
