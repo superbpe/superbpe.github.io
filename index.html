@@ -100,7 +100,7 @@
       <div class="column is-four-fifths">
           <!-- TL;DR Section -->
         <div class="content is-size-5">
-          <em><strong>TL;DR:</strong> We introduce a family of superword tokenizers which encode the same text using, on average, up to 33% fewer tokens than a BPE tokenizer of the same size. Models trained with our tokenizer are more efficient during inference while also outperforming the baseline by +4.0% on average over a suite of 30 downstream tasks, including +8.2% on MMLU.</em>
+          <em><strong>TL;DR:</strong> We introduce a family of superword tokenizers that encode the same text using up to 33% fewer tokens than a BPE tokenizer of the same size. 8B models trained with our tokenizer are not only more efficient during inference, but also outperform the baseline on a large suite of downstream tasks, including +8.2% on MMLU.</em>
         </div>
       </div>
     </div>
@@ -128,7 +128,7 @@
       <div class="column is-four-fifths">
         <div class="content">
           <p>
-            Tokenizers are the interface through which language models interact with the world. Beginning from a blank slate, they learn the shape and form of language as sequences of tokens. Each token is a segment of text that belongs in the language model’s “vocabulary,” and the language model learns to predict the next-token given the current context.
+            Tokenizers are the interface through which language models interact with the world. Beginning from a blank slate, they learn the shape and form of language as sequences of tokens, becoming ever more capable. But in the end, the tokenizer will still govern the mapping between text and computation. Today, tokenization universally occurs at the level of subwords, meaning that tokens are parts of words (including complete words), but cannot bridge whitespace. Historically, subword tokenization was meant to combine the strengths of word-level tokenization, which cannot easily handle novel words, and byte-level tokenization, which can represent arbitrary text but is much less efficient.
           </p>
           <p>
             In the era of transformer language models, tokenization is done at the level of subwords, meaning that tokens are <em>parts</em> of words (including complete words), but cannot bridge whitespace. Historically, subword tokenization was meant to combine the strengths of <em>word-level tokenization</em>, which cannot easily handle novel words, and <em>byte-level tokenization</em>, which can represent arbitrary text but is much less efficient.
@@ -137,7 +137,7 @@
             But for modern language models, does it really make sense to limit tokens to parts of words? Whitespace is not a consistent delimiter of meaning — multi-word expressions (<em>“by the way”</em>) function semantically as single units, and different languages vary in the number of words needed to express a concept (<em>“spacesuit helmet”</em> is <em>“Raumanzughelm”</em> in German). At the extreme, <strong>languages such as Chinese do not use whitespace at all</strong>. Tokens in these languages span multiple words and even <a href="https://x.com/suchenzang/status/1790171161512587424">entire sentences</a>, yet this has seemingly not hindered LMs from learning these languages.
           </p>
           <p>
-            To explore the potential of tokenization beyond subwords, we introduce <strong>SuperBPE</strong>, an algorithm that produces a tokenizer including both subword and “superword” tokens. SuperBPE dramatically improves encoding efficiency over BPE, meaning that it consistently segments the same piece of text into fewer tokens. This is because while BPE tokenizers quickly exhaust the set of “useful” words to add to the vocabulary, SuperBPE can continue to discover common word sequences to treat as single tokens. For instance, at a fixed vocabulary size of 200k, a SuperBPE tokenizer uses ⅓ fewer tokens than BPE to encode the same amount of text!
+            We extend tokenization beyond subwords by introducing <strong>SuperBPE</strong>, an algorithm that produces tokenizers including both subword and “superword” tokens. As background, the subword restriction in BPE is enforced in a step called pretokenization, which splits the training text on whitespace to prevent common word sequences from becoming single tokens. SuperBPE modifies BPE by adding a simple pretokenization curriculum: the tokenizer first learns subwords by using pretokenization, and then lifts this restriction to transition to learning superwords.
           </p>
           <div class="is-flex is-horizontal-center">
             <figure class='image'>
@@ -146,6 +146,9 @@
                   alt="Plot with vocabulary size on the x-axis and bytes per token on the y-axis. SuperBPE outperforms both variants of BPE." />
             </figure>
           </div>
+          <p>
+            We find that SuperBPE dramatically improves encoding efficiency over BPE, meaning that it segments the same piece of text into fewer tokens. This is because BPE tokenizers quickly exhaust the set of “useful” words to add to the vocabulary and begin adding increasingly rare (sub)words, which manifest as <a href="https://arxiv.org/abs/2405.05417">“undertrained tokens”</a> like the famous <a href="https://www.lesswrong.com/posts/aPeJE8bSo6rAFoLqg/solidgoldmagikarp-plus-prompt-generation"><tt>_SolidGoldMagikarp</tt></a>. In contrast, SuperBPE can instead add common word sequences like <tt>_fish_oil</tt> to its vocabulary. For instance, at a fixed vocabulary size of 200k, a SuperBPE tokenizer uses 33% fewer tokens than BPE to encode the same amount of text!
+          </p>
           <p>
             What happens when we train models with superword tokenizers? In our experiments, we pretrain 8B models from scratch, fixing everything about the model architecture and training setup and varying only the algorithm for learning the vocabulary. We find that <strong>models trained with SuperBPE tokenizers are consistently better</strong> — our best model achieves a <strong>+4.0% absolute improvement on average over 30 downstream tasks</strong> over the BPE baseline, winning on 25/30 of the individual tasks (including +8.2% on MMLU), <strong>while also being 27% more efficient at inference time.</strong>
           </p>
@@ -386,7 +389,18 @@
             </div>
           </p>
           <p>
-            Overall, SuperBPE provides a remarkable boost to both encoding efficiency and downstream performance to yield better language models. It replaces BPE tokenizers without requiring any other modifications to the architecture or training framework, making it a compelling alternative that seamlessly integrates with modern language model ecosystems.
+            We also find that SuperBPE distributes difficulty more uniformly over tokens, overfitting less to extremely common and easy-to-predict words while also achieving much lower loss on the hardest tokens. This makes sense from a qualitative linguistic analysis — superword tokens often consist of multi-word expressions (<em>by accident, depend on, of course</em>) that function semantically as single units. The individual words in these expressions are often semantically vacuous and have little variation in context. Under BPE these correspond to extremely low-loss tokens, while they are merged into larger superword tokens under SuperBPE.
+          </p>
+          <div class="is-flex is-horizontal-center">
+            <figure class='image'>
+              <img
+                src="static/images/log_loss_hist.svg"
+                alt="Plot with vocabulary size on the x-axis and bytes per token on the y-axis. SuperBPE outperforms both variants of BPE." />
+            </figure>
+          </div>
+          <p>
+            Together, these findings suggest that SuperBPE provides a better representation of the text for learning language over, giving a remarkable boost to both encoding efficiency and downstream performance. SuperBPE replaces BPE tokenizers without requiring any other modifications to the architecture or training framework, making it a compelling alternative that seamlessly integrates with modern language model ecosystems.
+            You can run our models right now using <a href="https://huggingface.co/collections/UW/superbpe-67db2338062faa07c7473ffa">HuggingFace Transformers</a> and <a href="https://docs.vllm.ai/en/latest/">vLLM</a>!
           </p>
           <p>
             If you made it this far, we encourage you to read <a href="https://arxiv.org/pdf/2503.13423">our paper</a> for lots more experiments, discussion, and analysis!
@@ -398,14 +412,14 @@
 </section>
 
 <section class="section" id="BibTeX">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column is-four-fifths">
-          <div class="content">
-            <h2 class="title">BibTeX</h2>
-            <pre><code>@misc{liu-etal-2025-superbpe,
-      title={SuperBPE: Space Travel for Language Models},
-      author={Alisa Liu and Jonathan Hayase and Valentin Hofmann and Sewoong Oh and Noah A. Smith and Yejin Choi},
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="content">
+          <h2 class="title">BibTeX</h2>
+          <pre><code>@misc{liu-etal-2025-superbpe,
+              title={SuperBPE: Space Travel for Language Models},
+              author={Alisa Liu and Jonathan Hayase and Valentin Hofmann and Sewoong Oh and Noah A. Smith and Yejin Choi},
       year={2025},
       eprint={2503.13423},
       archivePrefix={arXiv},
