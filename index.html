@@ -131,9 +131,6 @@
             Tokenizers are the interface through which language models interact with the world. Beginning from a blank slate, they learn the shape and form of language as sequences of tokens, becoming ever more capable. But in the end, the tokenizer will still govern the mapping between text and computation. Today, tokenization universally occurs at the level of subwords, meaning that tokens are parts of words (including complete words), but cannot bridge whitespace. Historically, subword tokenization was meant to combine the strengths of word-level tokenization, which cannot easily handle novel words, and byte-level tokenization, which can represent arbitrary text but is much less efficient.
           </p>
           <p>
-            In the era of transformer language models, tokenization is done at the level of subwords, meaning that tokens are <em>parts</em> of words (including complete words), but cannot bridge whitespace. Historically, subword tokenization was meant to combine the strengths of <em>word-level tokenization</em>, which cannot easily handle novel words, and <em>byte-level tokenization</em>, which can represent arbitrary text but is much less efficient.
-          </p>
-          <p>
             But for modern language models, does it really make sense to limit tokens to parts of words? Whitespace is not a consistent delimiter of meaning — multi-word expressions (<em>“by the way”</em>) function semantically as single units, and different languages vary in the number of words needed to express a concept (<em>“spacesuit helmet”</em> is <em>“Raumanzughelm”</em> in German). At the extreme, <strong>languages such as Chinese do not use whitespace at all</strong>. Tokens in these languages span multiple words and even <a href="https://x.com/suchenzang/status/1790171161512587424">entire sentences</a>, yet this has seemingly not hindered LMs from learning these languages.
           </p>
           <p>
