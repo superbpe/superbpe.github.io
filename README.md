@@ -1,6 +1,7 @@
 # SuperBPE Tokenization
 
 This is the repository that contains source code for the [SuperBPE Tokenization website](https://superbpe.github.io/).
+See the [official repo](https://github.com/PythonNut/superbpe) for the implementation.
 
 
 # Website License
