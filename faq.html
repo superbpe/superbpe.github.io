@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZDNTVNBZY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-ZDNTVNBZY9');
+    </script>
+
+    <meta charset="utf-8">
+    <meta name="description"
+          content="SuperBPE: Space Travel for Language Models">
+    <meta name="keywords" content="superbpe superword tokenization">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SuperBPE: Frequently Asked Questions</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./static/css/bulma.min.css">
+    <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="./static/css/index.css">
+    <link rel="icon" href="./static/images/favicon.png">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@iframe-resizer/parent@5.3.3"></script>
+    <script defer src="./static/js/fontawesome.all.min.js"></script>
+  </head>
+  <body>
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered">
+            <div class="column has-text-centered">
+              <h1 class="title is-1 publication-title">SuperBPE: Frequently Asked Questions</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tldr">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-justified">
+          <div class="column is-four-fifths">
+            <!-- TL;DR Section -->
+            <div class="content is-size-5">
+              <p>July 11, 2025</p>
+              <p><em>In the last three months, we have had the joy of working with different groups of people exploring SuperBPE in their own model development pipelines. If you missed it, <a href="https://superbpe.github.io/">here</a> is our first post introducing SuperBPE. In the process, we’ve compiled an FAQ with new findings and some practical suggestions to help practitioners use SuperBPE to its fullest potential.</em></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tldr">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-justified">
+          <div class="column is-four-fifths">
+            <!-- TL;DR Section -->
+            <div class="content">
+              <h2>Table of Contents</h2>
+              <ol>
+                <li><a href="#inference_savings">What do inference-time savings look like in the long-context regime?</a></li>
+                <li><a href="#token_param_ratio">Do SuperBPE models have the same compute-optimal token/parameter ratio?</a></li>
+                <li><a href="#context_adjustment">Should we adjust the context size for SuperBPE models?</a></li>
+                <li><a href="#training_tips">How should I train my SuperBPE tokenizer?</a></li>
+                <li><a href="#eval_notes">How should I eval my SuperBPE model?</a></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="inference_savings">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-justified">
+          <div class="column is-four-fifths">
+            <div class="content">
+              <h3>What do inference-time savings look like in the long-context regime?</h3>
+              <p>
+                While our original paper studied fairly short-context regimes (~4K token context length), the efficiency benefits of SuperBPE become even more pronounced in a long context regime. Specifically, for a fixed reduction factor in sequence length, <strong>the reduction in inference FLOPs grows quadratically with the length of text.</strong>
+              </p>
+              <p>
+                To see why this is true, recall that inference FLOPS are given by <code>4 × D × L<sup>2</sup> + 40 × D<sup>2</sup> × L</code> (assuming an MLP expansion of 8), where <code>D = hidden dimension</code> and <code>L = sequence length</code>.
+                The first and second terms represent the attention and non-attention FLOPs, respectively.
+                Now, let α denote the ratio of our tokenizer’s efficiency to that of a normal BPE tokenizer (e.g., <code>α = 1.5</code> for our most efficient tokenizer).
+                If the context length is short, then the non-attention term dominates and inference compute savings are close to <code>1/α</code>.
+                However, in the long-context regime, attention dominates the inference compute and the compute savings approach <code>1/α<sup>2</sup></code>!
+              </p>
+              <p>
+                To illustrate this, we plot the inference FLOPs used by a BPE and SuperBPE model to encode the same text with length measured in bytes.
+                The gap between the blue and orange lines represents the FLOPs savings.
+                For a BPE model with context size of 4K tokens, switching to SuperBPE gives a 35% reduction in inference FLOPs; <strong>for a BPE model with context size of 128K tokens, that reduction grows to 50%!</strong>
+              </p>
+              <div class="is-flex is-horizontal-center">
+                <figure class='image'>
+                  <img
+                    src="static/images/inference_flop_savings.svg"
+                    alt="Plot with Sequence length in bytes on the x-axis and Inference FLOPs on the y-axis. The gap between BPE and SuperBPE grows quadratically with the sequence length." />
+                  <figcaption>Inference compute savings increase quadratically with context length.</figcaption>
+                </figure>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="token_param_ratio">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-justified">
+          <div class="column is-four-fifths">
+            <div class="content">
+              <h3>Do SuperBPE models have the same compute-optimal token/parameter ratio?</h3>
+              <p>
+                Scaling laws from the <a href="https://arxiv.org/abs/2203.15556">Chinchilla paper</a> established that across different training budgets, the optimal way to allocate a fixed training budget is at ~22 training tokens per parameter.
+                However, these experiments used a fixed subword tokenizer.
+                As we begin to think of the tokenizer as another variable we can control, a natural question arises:
+                <strong>does the compute-optimal ratio shift when using more efficient tokenizers?</strong>
+                Intuitively, we would expect that “harder” (i.e. longer on average) tokens require a more capable (i.e. larger) model to predict well.
+              </p>
+              <p>
+                As an initial exploration in this direction, we fixed a training budget and performed a sweep over the ratio of tokens seen during training to model parameter count.
+                In the below figure, we plot the (smoothed) endpoint loss of the training curves.
+                All points in the plot use the same training budget, but points on the left represent larger models trained on fewer tokens, while points on the right are smaller models trained on more tokens.
+                The minimum on each curve represents the optimal ratio of tokens (T) to parameters (P).
+              </p>
+              <div class="is-flex is-horizontal-center">
+                <figure class='image'>
+                  <img
+                    src="static/images/isoflop.svg"
+                    alt="Plot with token/parameter ratio x-axis and bits per byte on the y-axis. SuperBPE is minimized at T/P=15 while BPE is minimized at T/P=22." />
+                  <figcaption>SuperBPE's optimal token/parameter ratio is roughly 30% lower than BPE's!</figcaption>
+                </figure>
+              </div>
+              <p>
+                We see that <strong>the optimal T/P ratio for BPE is 22 tokens/parameter as expected, but for SuperBPE it is roughly 30% lower at 15 tokens/parameter</strong> — this is suspiciously close to the 30% average reduction in tokens due to SuperBPE’s improved efficiency!
+                This points to the <strong>possibility that compute optimality is actually a constant ratio of training <em>bytes</em> to parameters</strong>, not training tokens to parameters as commonly perceived.
+                From our experiments, the true compute-optimal ratio seems to be (a very nice) 100 bytes/parameter.
+              </p>
+              <p>
+                For model developers intending to train <em>compute-optimal models</em>, this would mean making the models bigger and shrinking the number of training tokens to achieve a ratio of 15 training tokens per model parameter. In this setting, the preceding figure suggests the SuperBPE model will achieve lower BPB while still retaining a small inference-time speedup.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="context_adjustment">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-justified">
+          <div class="column is-four-fifths">
+            <div class="content">
+              <h3>Should we adjust the context size for SuperBPE models?</h3>
+              <p>
+                In our original experiments, we adjusted the max context size of SuperBPE models (in tokens) to match the <em>effective</em> max context size of the BPE model in raw text (bytes).
+                This is because we wanted to avoid an unfair advantage from SuperBPE seeing more textual context for the same next-token prediction. In new analysis, we support this design choice by showing that <strong>the longer the context in bytes (<em>not</em> tokens), the easier the next token is to predict</strong>. The following two plots show the average loss at every token index (left) vs byte index (right) — when measured at fixed <em>token</em> indices, SuperBPE has an advantage from seeing more context (achieving lower loss on average at the same token index), whereas at fixed <em>byte</em> indices, this advantage goes away.
+              </p>
+              <div class="is-flex is-horizontal-center">
+                <figure class='image'>
+                  <img
+                    src="static/images/context_correction.svg"
+                    alt="Two plots with average bits per byte on the y-axis. (left) with tokens of context on the x-axis, SuperBPE has an advantage over BPE with equal tokens of context (right) with bytes of context on the x-axis, SuperBPE and BPE are essentially indistinguisable in BPB." />
+                  <figcaption>SuperBPE has an advantage over BPE when controlling for <em>tokens</em> of context, <br>which disappears if we control for <em>bytes</em> of context instead.</figcaption>
+                </figure>
+              </div>
+              <p>
+                Nonetheless, we wanted to understand how the max context size interacts with model performance. In addition to our original BPE (ctx=4096) and SuperBPE (ctx=3000) models, we train two additional ablations: BPE (ctx=3000) and SuperBPE (ctx=4096). All models share the same 8B architecture. In our setup, the global batch size (in number of training examples) is fixed, so models with shorter context sizes take more training steps. The four model settings are summarized below, with the middle two rows being from the original paper.
+              </p>
+              <p>
+                <div class="is-flex is-horizontal-center">
+                  <table class="table is-hoverable" id="contextab">
+                    <thead>
+                      <tr>
+                        <th>Tokenizer</th>
+                        <th>Context size (tokens)</th>
+                        <th>Effective context size (bytes)</th>
+                        <th>Global batch size</th>
+                        <th>Train steps</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="hruled">
+                        <td>BPE</td>
+                        <td>3000</td>
+                        <td>13,376</td>
+                        <td>1024</td>
+                        <td>107,982</td>
+                      </tr>
+                      <tr>
+                        <td>BPE</td>
+                        <td>4096</td>
+                        <td>18,262</td>
+                        <td>1024</td>
+                        <td>76,543</td>
+                      </tr>
+                      <tr>
+                        <td>SuperBPE</td>
+                        <td>3000</td>
+                        <td>18,268</td>
+                        <td>1024</td>
+                        <td>107,982</td>
+                      </tr>
+                      <tr>
+                        <td>SuperBPE</td>
+                        <td>4096</td>
+                        <td>24,938</td>
+                        <td>1024</td>
+                        <td>76,543</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </p>
+              <p>
+                Shown below, we find that the two models with the shorter context size in tokens (regardless of the tokenizer) perform better!
+                (Note that even when the BPE and SuperBPE models have equivalent performance, SuperBPE remains more efficient at inference time.)
+                While this surprised us initially, it provides a somewhat satisfying answer to the question of why SuperBPE models performed better in our paper:
+                <strong>SuperBPE enables a more optimal tradeoff between context size and training steps, without changing the actual effective context size</strong>.
+                This relates to some existing work about the existence of a <a href="https://arxiv.org/abs/2505.23971">critical batch size</a> that strikes the optimal balance between efficiency and performance.
+              </p>
+              <div class="is-flex is-horizontal-center">
+                <figure class='image'>
+                  <img
+                    src="static/images/average.svg"
+                    alt="Plot with vocabulary size on the x-axis and bytes per token on the y-axis. SuperBPE outperforms both variants of BPE." />
+                  <figcaption>Models with shorter context size (in tokens) perform better,<br> but SuperBPE fits more text for the same number of tokens.</figcaption>
+                </figure>
+              </div>
+              <p>
+                For model developers, this means that <strong>to obtain improvements in model performance with SuperBPE, adjusting the context size is important</strong>. You can preserve the throughput by “rounding” the context length to a multiple of a power of 2 and increasing the microbatch size (since all the training examples are shorter, you can fit more per device). Fortunately, your <em>effective</em> context length is preserved! In general, this is the setting we recommend, in order to achieve gains in performance and inference-time efficiency simultaneously. However, if you are mainly interested in <em>inference</em>-time speedups from SuperBPE, then you can instead keep the same context tokens in tokens.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="training_tips">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-justified">
+          <div class="column is-four-fifths">
+            <div class="content">
+              <h3>How should I train my SuperBPE tokenizer?</h3>
+              <p>Here, we include some notes on training the SuperBPE tokenizer itself.</p>
+              <h4>1. Use phase 1 pretraining data for tokenizer training</h4>
+              <p>
+                Model developers may have the tendency to prioritize “higher-quality” data for training, such as SFT or math data;
+                while this makes sense for model training, tokenizer training is simply about learning a broadly useful vocabulary, and we recommend against skewing tokenizer training data toward any particular domain.
+                In particular, training on data with templated phrases can lead to some unintended tokens. For instance, we’ve seen that when tokenizers are trained on a disproportionate amount of SFT data, canonicalized “AI assistant phrases” like <code>Sure,␣I’d␣be␣happy</code> or <code>␣glad␣I␣could␣help</code> become single tokens. These tokens are rare for most of pretraining, so their embeddings may become <a href="https://aclanthology.org/2024.emnlp-main.649/">undertrained</a> in phase 1 of pretraining and difficult to learn in phase 2.
+              </p>
+              <h4>2. Subwords and superwords can be learned over different data</h4>
+              <p>
+                In our original paper, we used the same tokenizer training data for learning subwords (stage 1) and superwords (stage 2), but in general they do not need to be tied. You may decide, for instance, that you want most of the tokenizer to be multilingual, but have only English superwords. (Though we have found that SuperBPE generalizes well in multilingual settings.)
+              </p>
+              <p>
+                It’s even possible to extend an existing tokenizer by running stage 2 directly on it. This can be useful if you don’t have access to the training data for that tokenizer (perhaps because you borrowed an off-the-shelf option)!
+              </p>
+              <h4>3. Play around with the pretokenization regex for subwords and superwords!</h4>
+              <p>
+                Stage 1 (subword) and stage 2 (superword) of SuperBPE tokenizer training differ fundamentally in the pretokenization regex, with stage 2 being a more relaxed version that allows superwords.
+                We recommend using the most advanced regex you have for stage 1, and keeping a subset of desirable regex for stage 2.
+                For instance, in our original work, we kept the pretokenization scheme for digits in stage 2 to prevent arbitrarily long numbers from becoming a single token.
+                You could also consider only allowing superwords consisting of sequences of <em>complete</em> words (see <a href="https://github.com/PythonNut/superbpe/issues/9">this brief discussion</a>).
+              </p>
+              <h4>4. Choose the transition point based on distance from final vocab size</h4>
+              <p>
+                In our original paper, we found that the efficiency-optimal transition point is not necessarily the best for downstream performance. Indeed, predicting the performance of a tokenizer from intrinsic features is an unsolved problem [<a href="https://aclanthology.org/2023.acl-long.284/">1</a>, <a href="https://arxiv.org/abs/2506.03101">2</a>]. Nonetheless, it is useful to think of the best transition point in terms of distance from the final desired vocab size, with 10k or 20k from the end being a reliable heuristic.
+              </p>
+              <p>
+                Below, we plot the indices of token indices used in forming superwords for our tokenizer with vocab size = 200k and transition point = 180k.
+              </p>
+              <div class="is-flex is-horizontal-center">
+                <figure class='image'>
+                  <img
+                    src="static/images/subword_token_ids.svg"
+                    alt="Histogram with token ID on the x-axis and count on the y-axis, showing the distribution of tokens used in superword merges. There are two spikes, one at the beginning of stage 1 and a smaller one at the beginning of stage 2." />
+                  <figcaption>Superwords are overwhelmingly built from early subwords (or early superwords).</figcaption>
+                </figure>
+              </div>
+              <p>
+                We see that the subword tokens used are all learned very early in tokenizer training, which makes sense — common sequences of words are naturally composed of common words.
+                After index 180k, superwords are composed further into larger superwords.
+                Thus, in general, learning useful superwords does not depend on a very large subword vocabulary.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="eval_notes">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-justified">
+          <div class="column is-four-fifths">
+            <div class="content">
+              <h3>How should I eval my SuperBPE model?</h3>
+              <p>
+                Sometimes, evaluation scripts make assumptions about the tokenizer that are very reasonable in the case of subword tokenization, but are untrue in the case of SuperBPE. Fortunately these are easy bugs to fix, but require some attention to detail to identify. Here are some examples we’ve noticed:
+              </p>
+              <ul>
+                <li>
+                  <p>
+                    Suppose that for multiple choice problems we are comparing the logprobs of the tokens <code>␣A</code>, <code>␣B</code>, <code>␣C</code>, <code>␣D</code>.
+                    However, what happens if <code>␣A\n</code> is a single token, and furthermore, in-context examples in the prompt suggest that a newline is expected after each answer choice?
+                    The result is that very little probability will be placed on <code>␣A</code>, as that probability mass is instead on <code>␣A\n</code>.
+                    To fix this, we would recommend identifying the right tokens to compare or decoding the answer option in a generative fashion.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    In cloze-style Hellaswag evaluation, the log probabilities of multiple continuations are compared when conditioning on the same prompt. An issue arises when the prompt and continuation, when tokenized together, would result in a token that bridges the prompt-continuation boundary. Consider, for instance,
+                  </p>
+                  <p>
+                    <strong>Prompt:</strong> One of the ping pongs lands in the cup and one of the boys begins to drink the beer. The group<br>
+                    <strong>Continuation:</strong> of teens is sailing down the river with others sailing in the background.
+                  </p>
+                  <p>
+                    In a SuperBPE tokenizer, <code>␣group␣of</code> is usually a single token.
+                    The result is that the SuperBPE model has never seen the token <code>␣group</code> followed by the token <code>␣of</code> in training, so it learns not to predict <code>␣of</code> when conditioned on <code>␣group</code>.
+                  </p>
+                  <p>
+                    With our SuperBPE tokenizer, we have found that this issue affects 58% of Hellaswag prompt-continuation pairs.
+                    To fix it, we recommend tokenizing the prompt and continuation together, and comparing those log probabilities instead.
+                    That is, compare the log probs of <code>P(prompt + cont<sub>i</sub>)</code> instead of <code>P(cont<sub>i</sub> | prompt)</code>.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    Suppose that in order to prompt the model to use chain of thought, the prompt ends with <code>“Let's think step by step.”</code>
+                    While seemingly innocuous, this becomes an issue when the continuation starts with a common word like <code>“The”</code> as <code>“.␣The”</code> may be a single token in a SuperBPE tokenizer. There are multiple avenues for fixing this:
+                    <ol>
+                      <li>If <code>“Let's think step by step.”</code> is used in all the in-context examples, it is unnecessary to include in the final question,</li>
+                      <li>Since <code>“step.”</code> is very unlikely to be a single token (it is uncommon), you can back up the prompt by one character to leave off the period, and</li>
+                      <li>You can consider preventing the more general category of tokens that have the form <code>“{punctuation mark}{letters}”</code> from being learned by using more sophisticated regex in Stage 2 (as discussed earlier). </li>
+                    </ol>
+                  </p>
+                </li>
+              </ul>
+              <p>
+                These are all instance of the prompt boundary problem [<a href="https://arxiv.org/abs/2406.16829">3</a>, <a href="https://arxiv.org/abs/2412.03719">4</a>], which plagues all tokenizers and has been extensively studied.
+                For subword tokenizers, we can avoid this problem in languages that use whitespace by ending our prompt with a complete word without the trailing whitespace;
+                however, this heuristic becomes unreliable when tokens can be superwords.
+              </p>
+              <p>
+                It turns out that all of these issues can be solved by our <a href="https://www.arxiv.org/abs/2506.14123">new paper</a>, which presents an efficient solution to the prompt boundary problem. We are working on integrating it into <a href="https://github.com/EleutherAI/lm-evaluation-harness"><code>lm-evaluation-harness</code></a>, but we are not sure yet when that will roll out.
+              </p>
+              <p>
+                Overall, evaluation of language models is already notoriously tricky to get right, and it requires just a bit more attention to detail in the case of using a new type of tokenizer. We hope you find that it is worth it!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <footer class="footer">
+      <div class="container">
+        <div class="columns is-centered">
+          <div class="column is-8">
+            <div class="content">
+              <p>
+                This page was built using the <a href="https://advtok.github.io/">Adversarial Tokenization project page</a>.
+                This website is licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.
+                You are free to borrow the <a href="https://github.com/superbpe/superbpe.github.io">source code</a> of this website, we just ask that you remove the analystics code in the header and link back to this page in the footer.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module">
+      import { initialize } from "https://cdn.jsdelivr.net/npm/@open-iframe-resizer/core@latest/dist/index.js";
+      initialize({}, "#playgroundframe");
+      initialize({targetElementSelector: "svg.mpld3-figure"}, "#plotframe");
+    </script>
+
+  </body>
+</html>
